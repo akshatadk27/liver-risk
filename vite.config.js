@@ -8,4 +8,17 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  build: {
+    chunkSizeWarningLimit: 2500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          charts: ['recharts'],
+          pdf: ['pdfjs-dist'],
+          ocr: ['tesseract.js']
+        }
+      }
+    }
+  }
 })
