@@ -1,0 +1,96 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Technique {
+  id                    Int            @id @default(autoincrement())
+  name                  String         @unique
+  category              String
+  formula               String
+  description           String
+  interpretability_score Float
+  performances          Performance[]
+  coefficients          Coefficient[]
+  calculations          Calculation[]
+  createdAt             DateTime       @default(now())
+
+  @@map("techniques")
+}
+
+model Performance {
+  id           Int       @id @default(autoincrement())
+  technique_id Int
+  accuracy     Float
+  precision    Float
+  recall       Float
+  f1_score     Float
+  paper_source String
+  technique    Technique @relation(fields: [technique_id], references: [id])
+
+  @@map("performances")
+}
+
+model RiskFactor {
+  id                Int           @id @default(autoincrement())
+  factor_name       String        @unique
+  normal_range_min  Float
+  normal_range_max  Float
+  unit              String
+  coefficients      Coefficient[]
+
+  @@map("risk_factors")
+}
+
+model Coefficient {
+  id               Int        @id @default(autoincrement())
+  technique_id     Int
+  factor_id        Int
+  beta_value       Float
+  odds_ratio       Float
+  confidence_low   Float
+  confidence_high  Float
+  technique        Technique  @relation(fields: [technique_id], references: [id])
+  factor           RiskFactor @relation(fields: [factor_id], references: [id])
+
+  @@map("coefficients")
+}
+
+model Patient {
+  id           Int           @id @default(autoincrement())
+  age          Int
+  gender       String
+  bilirubin    Float?
+  alt          Float?
+  ast          Float?
+  platelets    Float?
+  alcohol      String?
+  smoking      String?
+  bmi          Float?
+  hbv          Boolean?      @default(false)
+  hcv          Boolean?      @default(false)
+  diabetes     String?
+  source       String?       @default("manual")
+  createdAt    DateTime      @default(now())
+  calculations Calculation[]
+
+  @@map("patients")
+}
+
+model Calculation {
+  id           Int       @id @default(autoincrement())
+  patient_id   Int
+  technique_id Int
+  risk_result  Float
+  createdAt    DateTime  @default(now())
+  patient      Patient   @relation(fields: [patient_id], references: [id])
+  technique    Technique @relation(fields: [technique_id], references: [id])
+
+  @@map("calculations")
+}
