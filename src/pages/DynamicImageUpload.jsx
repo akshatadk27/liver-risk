@@ -1180,6 +1180,7 @@ export default function DynamicImageUpload() {
   // ── Camera ─────────────────────────────────────────────────────────────────
   const startCamera = async () => {
     setCameraError(null);
+    setCamera(true); // Mount the video element so videoRef attaches
     try {
       // Try high-res rear camera first; fall back progressively
       let stream = null;
@@ -1214,9 +1215,9 @@ export default function DynamicImageUpload() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => videoRef.current.play().catch(() => {});
-        setCamera(true);
       }
     } catch (err) {
+      setCamera(false);
       const msg =
         err.name === 'NotAllowedError'  ? 'Camera permission denied. Please allow camera access in your browser settings.'
         : err.name === 'NotFoundError'  ? 'No camera found on this device. Please upload a photo instead.'
